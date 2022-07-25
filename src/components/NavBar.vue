@@ -7,7 +7,8 @@
       }}</router-link>
     </nav>
     <div class="flex-grow"></div>
-    <div class="block md:hidden">
+    <SignIn />
+    <div class="block md:hidden mr-5">
       <button
         class="flex items-center px-3 py-3 border rounded text-teal-200 border-teal-400 hover:border-teal-800"
         @click="handleClick"
@@ -28,6 +29,7 @@
 import "../assets/tailwind.css";
 import { ref } from "vue";
 import LogoButton from "./LogoButton.vue";
+import SignIn from "./SignIn.vue";
 const showNav = ref(false);
 const pages = ref([
   { name: "Home", to: "/" },
