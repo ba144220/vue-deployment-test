@@ -1,20 +1,17 @@
 <template>
-  <nav class="bg-amber-100">
-    <router-link to="/">Home</router-link> |
-    <router-link to="/about">About</router-link>
-  </nav>
-  <router-view/>
+  <header class="sticky top-0 z-50 bg-orange-200">
+    <NavBar />
+  </header>
+  <router-view />
+  <footer class="bg-slate-900"><Footer /></footer>
 </template>
 
-<script>
-import './assets/tailwind.css'
-export default {
-  setup() {
-    
-  },
-}
+<script setup>
+import "./assets/tailwind.css";
+import { ref } from "vue";
+import NavBar from "./components/NavBar.vue";
+import Footer from "./components/Footer.vue";
 </script>
-
 
 <style>
 #app {
@@ -23,18 +20,5 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-}
-
-nav {
-  padding: 30px;
-}
-
-nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-nav a.router-link-exact-active {
-  color: #42b983;
 }
 </style>
