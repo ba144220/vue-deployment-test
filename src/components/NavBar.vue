@@ -7,7 +7,8 @@
       }}</router-link>
     </nav>
     <div class="flex-grow"></div>
-    <SignIn />
+    <LogoutButton v-if="isLoggedIn" />
+    <SignIn v-else />
     <div class="block md:hidden mr-5">
       <button
         class="flex items-center px-3 py-3 border rounded text-teal-200 border-teal-400 hover:border-teal-800"
@@ -26,11 +27,26 @@
 </template>
 
 <script setup>
-import "../assets/tailwind.css";
-import { ref } from "vue";
 import LogoButton from "./LogoButton.vue";
+import LogoutButton from "./LogoutButton.vue";
 import SignIn from "./SignIn.vue";
+
+import "../assets/tailwind.css";
+import { ref, onMounted } from "vue";
+import { getAuth, onAuthStateChanged, signOut } from "firebase/auth";
+const isLoggedIn = ref(false);
+let auth = getAuth();
 const showNav = ref(false);
+onMounted(() => {
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      isLoggedIn.value = true;
+    } else {
+      isLoggedIn.value = false;
+    }
+  });
+});
+
 const pages = ref([
   { name: "Home", to: "/" },
   { name: "About", to: "/about" },

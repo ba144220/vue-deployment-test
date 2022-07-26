@@ -8,14 +8,14 @@
 
   <div
     v-if="show"
-    class="fixed inset-0 backdrop-blur-sm bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center"
+    class="fixed inset-0 backdrop-blur-sm bg-opacity-50 bg-gray-400 overflow-y-auto h-full w-full flex items-center justify-center"
     id="my-modal"
     @click.self="handleClick"
   >
-    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700 md:w-1/2 w-5/6 m-auto">
+    <div class="relative bg-white rounded-lg drop-shadow-xl md:w-1/2 w-5/6 max-w-sm m-auto">
       <button
         type="button"
-        class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white"
+        class="hidden md:flex absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
         @click="handleClick"
       >
         <svg
@@ -34,61 +34,50 @@
         <span class="sr-only">Close modal</span>
       </button>
       <div class="py-6 px-6 lg:px-8">
-        <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-white">Sign in to our platform</h3>
-        <form class="space-y-6" action="#">
+        <h3 class="mb-4 text-xl font-medium text-gray-900">Sign in to our platform</h3>
+        <form class="space-y-6" action="#" @submit.prevent="signIn">
           <div>
-            <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-              >Your email</label
-            >
+            <label for="email" class="block mb-2 text-sm font-medium text-gray-900">Your email</label>
             <input
               type="email"
               name="email"
               id="email"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               placeholder="name@company.com"
               required
+              v-model="email"
             />
           </div>
           <div>
-            <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-              >Your password</label
-            >
+            <label for="password" class="block mb-2 text-sm font-medium text-gray-900">Your password</label>
             <input
               type="password"
               name="password"
               id="password"
               placeholder="••••••••"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5"
               required
+              v-model="password"
             />
           </div>
-          <div class="flex justify-between">
-            <div class="flex items-start">
-              <div class="flex items-center h-5">
-                <input
-                  id="remember"
-                  type="checkbox"
-                  value=""
-                  class="w-4 h-4 bg-gray-50 rounded border border-gray-300 focus:ring-3 focus:ring-blue-300 dark:bg-gray-600 dark:border-gray-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800"
-                  required
-                />
-              </div>
-              <label for="remember" class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-                >Remember me</label
-              >
-            </div>
-            <a href="#" class="text-sm text-blue-700 hover:underline dark:text-blue-500">Lost Password?</a>
-          </div>
+
           <button
             type="submit"
-            class="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+            class="mt-5 w-full text-white bg-amber-500 hover:bg-amber-600 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
           >
             Login to your account
           </button>
-          <div class="text-sm font-medium text-gray-500 dark:text-gray-300">
-            Not registered? <a href="#" class="text-blue-700 hover:underline dark:text-blue-500">Create account</a>
-          </div>
         </form>
+        <p v-if="errMsg">{{ errMsg }}</p>
+        <!-- <div class="w-full flex justify-center mt-5">
+          <button
+            @click="signInWithGoogle"
+            class="flex items-center text-white bg-[#4285f4] hover:bg-[#1669F2] focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-sm text-sm px-1 py-1 text-center"
+          >
+            <div class="h-10 w-10 bg-slate-50 mr-5"><img src="../assets/google-48.png" /></div>
+            <p class="text-lg font-bold mr-5">Login with Google</p>
+          </button>
+        </div> -->
       </div>
     </div>
   </div>
@@ -97,11 +86,56 @@
 <script setup>
 import "../assets/tailwind.css";
 import { ref } from "vue";
+import { getAuth, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { useRouter } from "vue-router";
 const show = ref(false);
+
+const email = ref("");
+const password = ref("");
+const errMsg = ref("");
+const router = useRouter();
+
 const handleClick = () => {
   show.value = !show.value;
   console.log("click");
 };
+
+const signIn = () => {
+  const auth = getAuth();
+  signInWithEmailAndPassword(auth, email.value, password.value)
+    .then((data) => {
+      console.log("Successfully registered!");
+      router.push("/");
+      console.log(auth.currentUser);
+      handleClick();
+    })
+    .catch((error) => {
+      console.log(error.code);
+      switch (error.code) {
+        case "auth/invalid-email":
+          errMsg.value = "Invalid email";
+          break;
+        case "auth/user-not-found":
+          errMsg.value = "No account with that email was found";
+          break;
+        case "auth/wrong-password":
+          errMsg.value = "Incorrect password";
+          break;
+        default:
+          errMsg.value = "Email or password was incorrect";
+          break;
+      }
+    });
+};
+// const signInWithGoogle = () => {
+//   const provider = new GoogleAuthProvider();
+//   signInWithPopup(getAuth(), provider)
+//     .then((result) => {
+//       console.log(result.user);
+//       router.push("/about");
+//     })
+//     .catch((error) => {});
+// };
 </script>
 
 <style></style>
